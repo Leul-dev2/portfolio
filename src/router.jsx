@@ -5,6 +5,8 @@ import Contact from "./sections/Contact/Contact";
 import Services from "./sections/Services/services";
 import Projects from "./sections/Projects/progect"; 
 import Blog from "./sections/Blog and Articles/Blog";
+import firebase from "firebase/compat/app";
+import Footer from "./sections/fotter/footer";
 
 export default function AppRouter() {
   return (
@@ -15,6 +17,7 @@ export default function AppRouter() {
       <Projects />
    <Blog />
       <Contact />
+      <Footer />
     </>
   );
 }

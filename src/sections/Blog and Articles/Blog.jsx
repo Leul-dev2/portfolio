@@ -1,23 +1,26 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import { FaCalendarAlt, FaTags, FaArrowLeft } from "react-icons/fa";
+import { HiOutlineArrowRight } from "react-icons/hi";
 
-// Variants for the animations to be used throughout the app
+// Variants for a more dynamic and staggered reveal
 const containerVariants = {
   hidden: { opacity: 0 },
-  show: {
+  visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
+      staggerChildren: 0.15,
       delayChildren: 0.3,
     },
   },
 };
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 50 },
-  show: {
+const cardVariants = {
+  hidden: { opacity: 0, y: 50, scale: 0.95 },
+  visible: {
     opacity: 1,
     y: 0,
+    scale: 1,
     transition: {
       type: "spring",
       stiffness: 120,
@@ -26,90 +29,45 @@ const itemVariants = {
   },
 };
 
-// Dummy data for blog articles. This can be replaced with real data from an API.
+// Simplified and updated dummy data with new images and content
 const articles = [
   {
     id: 1,
-    title: "The Rise of Full-Stack Development",
+    title: "The Future of Web Development",
     date: "July 25, 2024",
-    tag: "Web Development",
-    description:
-      "Exploring the benefits and challenges of the MERN stack for building scalable web applications.",
-    image: "https://placehold.co/1200x600/1e293b/d4d4d8?text=Web+Development",
+    tag: "Trends",
+    description: "An exploration into the emerging technologies and frameworks shaping the next generation of web applications, including AI-driven code and serverless architecture.",
+    image: "https://images.unsplash.com/photo-1542831371-29b0f74f9457?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1200",
     content: `
-      <p>The landscape of web development has undergone a significant transformation over the past decade. The rise of JavaScript frameworks and libraries on both the front and back ends has paved the way for a new paradigm: full-stack development. This approach allows a single developer or a small team to handle every layer of a web application, from the user interface to the server logic and database management.</p>
-      <p>One of the most popular full-stack combinations today is the MERN stack, which consists of **MongoDB**, **Express.js**, **React**, and **Node.js**. This powerful quartet provides a cohesive, end-to-end JavaScript-based solution. The benefits are clear: a unified language across the stack reduces cognitive overhead and simplifies the development process. However, it also presents challenges, such as the need for a broad skill set and the ever-evolving nature of the ecosystem.</p>
-      <p>Mastering the MERN stack means understanding how to build a responsive frontend with React, create robust REST APIs with Express and Node.js, and design efficient data models with MongoDB. This versatility makes full-stack developers highly sought after in the modern tech industry.</p>
+      <p>The web is constantly evolving, and staying ahead of the curve is crucial for any developer. We're seeing a massive shift towards **AI-powered development tools**, which are not just assisting with boilerplate code but are also helping to optimize performance and security.</p>
+      <p>Another major trend is the rise of **serverless computing**. Platforms like AWS Lambda and Google Cloud Functions allow developers to focus on writing code without managing servers, leading to more efficient and scalable applications. This shift fundamentally changes how we think about backend architecture.</p>
+      <p>Furthermore, the integration of **WebAssembly** is pushing the boundaries of what browsers can do, enabling near-native performance for computationally intensive tasks like gaming and video editing directly in the browser. The future of web dev is faster, smarter, and more integrated than ever before.</p>
     `,
   },
   {
     id: 2,
-    title: "Building Cross-Platform Apps with Flutter",
+    title: "Building Interactive UI with Framer Motion",
     date: "August 10, 2024",
-    tag: "Mobile Development",
-    description:
-      "A deep dive into how Flutter simplifies building beautiful and performant apps for all platforms from a single codebase.",
-    image: "https://placehold.co/1200x600/1e293b/d4d4d8?text=Flutter+Apps",
+    tag: "Frontend",
+    description: "A practical guide to using Framer Motion for creating stunning, fluid animations and interactive experiences in your React applications.",
+    image: "https://images.unsplash.com/photo-1550439062-609e17487246?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1200",
     content: `
-      <p>In the world of mobile application development, a persistent debate revolves around native versus cross-platform solutions. **Flutter**, Google's open-source UI toolkit, has emerged as a compelling answer to this challenge. It allows developers to build natively compiled applications for mobile, web, and desktop from a single codebase.</p>
-      <p>Flutter’s core strength lies in its use of the **Dart** programming language and its unique widget-based architecture. Everything in Flutter is a widget, from buttons and text to layout structures and animations. This approach enables developers to create stunning, highly customized user interfaces that feel native on every platform. The performance is also a key selling point, as Flutter compiles to ARM or Intel machine code, avoiding the bridge-related performance issues often found in other cross-platform frameworks.</p>
-      <p>For developers, Flutter’s hot-reload feature is a game-changer. It allows them to see the results of their code changes instantly, dramatically speeding up the development cycle. Whether you're a seasoned developer or just starting, Flutter offers a powerful and efficient way to bring your application ideas to life on all screens.</p>
+      <p>Animations are no longer just a luxury; they are a key part of creating a great user experience. **Framer Motion** is a powerful, yet incredibly easy-to-use, animation library for React. It simplifies complex animations, making them accessible to developers of all skill levels.</p>
+      <p>The library's declarative syntax allows you to define animations directly in your component's JSX. You can use simple props like <code>initial</code>, <code>animate</code>, and <code>transition</code> to control everything from simple fades to complex keyframe animations. It's built on top of a physics-based animation engine, which gives your animations a natural, fluid feel.</p>
+      <p>Beyond basic animations, Framer Motion also provides tools for gesture recognition, drag-and-drop interactions, and scroll-based animations. It's the perfect tool for bringing your frontend designs to life and making your applications feel polished and professional.</p>
     `,
   },
   {
     id: 3,
-    title: "Mastering RESTful APIs with Node.js",
+    title: "The Developer's Guide to Personal Branding",
     date: "September 5, 2024",
-    tag: "Software Engineering",
-    description:
-      "From basic routing to advanced authentication, learn the best practices for creating robust and secure APIs.",
-    image: "https://placehold.co/1200x600/1e293b/d4d4d8?text=API+Design",
+    tag: "Career",
+    description: "Learn how to build a strong personal brand as a developer, from creating a standout portfolio to contributing to open-source projects.",
+    image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1200",
     content: `
-      <p>At the heart of most modern web applications lies an **API (Application Programming Interface)**. It's the engine that powers data exchange between the frontend and backend. When building a backend with Node.js, creating a **RESTful API** is a common and effective approach. REST (Representational State Transfer) is an architectural style that provides a set of constraints for building web services.</p>
-      <p>Key concepts in a RESTful API include resources, which are identified by URLs, and HTTP methods (GET, POST, PUT, DELETE) used to perform operations on those resources. Node.js, combined with the Express.js framework, provides a minimalist and flexible way to create these APIs. Developers can define endpoints, handle requests and responses, and connect to a database like MongoDB or PostgreSQL with ease.</p>
-      <p>Beyond basic routing, a well-designed API also considers best practices like versioning, error handling, and most importantly, security. Implementing middleware for authentication and authorization is crucial to protect sensitive data and ensure that only authorized users can access specific resources.</p>
-    `,
-  },
-  {
-    id: 4,
-    title: "State Management in React: A Comprehensive Guide",
-    date: "September 20, 2024",
-    tag: "Frontend",
-    description:
-      "Comparing popular state management libraries like Redux, Zustand, and React Context to find the right tool for your project.",
-    image: "https://placehold.co/1200x600/1e293b/d4d4d8?text=React+State",
-    content: `
-      <p>As React applications grow in complexity, managing state becomes a critical challenge. Where should the data live? How do components share information? These questions lead to the topic of state management, a fundamental concept for any serious React developer.</p>
-      <p>React's built-in **Context API** offers a simple way to pass data down the component tree without prop drilling. It's a great solution for managing global state that doesn't change frequently, such as user authentication or theme settings. For more complex, frequently-updated state, libraries like **Redux** and **Zustand** provide more robust and predictable patterns.</p>
-      <p>Redux, with its strict, unidirectional data flow and dev tools, has long been the gold standard for large-scale applications. However, newer libraries like Zustand offer a more modern, lightweight, and less-boilerplate-heavy approach. Choosing the right state management solution depends on your project's size, complexity, and the team's familiarity with the patterns.</p>
-    `,
-  },
-  {
-    id: 5,
-    title: "Demystifying Git and GitHub",
-    date: "October 1, 2024",
-    tag: "Tools",
-    description:
-      "A beginner's guide to version control. Learn how to commit, push, merge, and collaborate effectively with Git.",
-    image: "https://placehold.co/1200x600/1e293b/d4d4d8?text=Git+and+GitHub",
-    content: `
-      <p>For any developer, regardless of their experience level, **version control** is an essential tool. **Git** is the most widely used version control system in the world, and **GitHub** is the platform that allows developers to collaborate on Git projects. Understanding these tools is a fundamental skill that every professional developer must possess.</p>
-      <p>At its core, Git allows you to track changes to your code over time. You can create different versions of your project (called **commits**), revert to previous states, and work on new features in isolation (**branches**). GitHub takes this a step further by providing a centralized location to host your code, manage issues, and collaborate with a team using features like **pull requests**.</p>
-      <p>This article will walk you through the basics of Git, from initializing a repository to committing changes, and then show you how to leverage GitHub for collaborative projects. By the end, you'll have a solid foundation for working with version control on any project.</p>
-    `,
-  },
-  {
-    id: 6,
-    title: "Writing Clean Code: A Developer's Mindset",
-    date: "October 15, 2024",
-    tag: "Best Practices",
-    description:
-      "Tips and tricks for writing code that is easy to read, maintain, and scale. Focus on readability and simplicity.",
-    image: "https://placehold.co/1200x600/1e293b/d4d4d8?text=Clean+Code",
-    content: `
-      <p>Code is read far more often than it's written. This simple truth is the foundation of the clean code movement. Writing code that is easy for others (and your future self) to understand is a crucial skill that separates good developers from great ones. Clean code is not just about making your program work; it's about making it maintainable and scalable.</p>
-      <p>This mindset involves several key principles: using clear and descriptive variable and function names, writing concise and focused functions, and adhering to consistent formatting. Avoiding deep nesting and excessive comments (by writing self-explanatory code) are also core practices. Refactoring, the process of improving code's internal structure without changing its external behavior, is a continuous part of this process.</p>
-      <p>Ultimately, writing clean code is a form of professional respect. It shows that you value your colleagues' time and that you're committed to building high-quality, sustainable software. This article will provide you with practical tips and examples to help you cultivate this essential mindset.</p>
+      <p>In a competitive market, having a strong personal brand can set you apart from the crowd. For developers, this goes beyond just having a good resume. It's about showcasing your skills, passion, and expertise to the world.</p>
+      <p>A great **portfolio website** is your digital business card. It should not only display your projects but also reflect your personality and design sensibilities. Consider writing **blog posts** to share your knowledge and establish yourself as an authority in your niche. Contributing to **open-source projects** is another powerful way to demonstrate your coding skills and collaborate with the broader community.</p>
+      <p>Building a personal brand is a long-term investment in your career. It's a way to attract opportunities that align with your interests and values, rather than just waiting for jobs to come to you. Start small, be consistent, and let your work speak for itself.</p>
     `,
   },
 ];
@@ -118,6 +76,7 @@ const articles = [
 const ArticleDetail = ({ article, onBackClick }) => {
   return (
     <motion.section
+      key="detail"
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -50 }}
@@ -125,6 +84,7 @@ const ArticleDetail = ({ article, onBackClick }) => {
       className="relative min-h-screen bg-[#0c1221] text-white px-6 py-20 overflow-hidden"
     >
       <div className="absolute inset-0 z-0 opacity-40">
+        {/* Animated Background Gradients */}
         <motion.div
           className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-blue-500 rounded-full blur-3xl"
           animate={{ x: ["-10%", "10%", "-10%"], y: ["-10%", "10%", "-10%"] }}
@@ -145,10 +105,7 @@ const ArticleDetail = ({ article, onBackClick }) => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          {/* Back arrow icon */}
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-            <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd"></path>
-          </svg>
+          <FaArrowLeft className="text-sm" />
           <span>Back to Articles</span>
         </motion.button>
 
@@ -177,17 +134,11 @@ const ArticleDetail = ({ article, onBackClick }) => {
           className="flex items-center space-x-4 text-gray-400 mb-8"
         >
           <div className="flex items-center gap-1">
-            {/* Calendar icon */}
-            <svg className="w-4 h-4 text-pink-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-              <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd"></path>
-            </svg>
+            <FaCalendarAlt className="w-4 h-4 text-pink-500" />
             <span>{article.date}</span>
           </div>
           <div className="flex items-center gap-1">
-            {/* Tag icon */}
-            <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-              <path fillRule="evenodd" d="M10.868 2.029a1.002 1.002 0 00-1.424 0L3.293 8.175a1 1 0 000 1.414l6.151 6.151a1 1 0 001.414 0l6.151-6.151a1 1 0 000-1.414L10.868 2.029zM10 5a2 2 0 100 4 2 2 0 000-4z" clipRule="evenodd"></path>
-            </svg>
+            <FaTags className="w-4 h-4 text-blue-500" />
             <span className="font-semibold text-blue-400">{article.tag}</span>
           </div>
         </motion.div>
@@ -247,44 +198,42 @@ const BlogSection = ({ onArticleClick }) => {
         <motion.div
           variants={containerVariants}
           initial="hidden"
-          whileInView="show"
+          whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
           {articles.map((article, index) => (
             <motion.div
               key={index}
-              variants={itemVariants}
+              variants={cardVariants}
+              onClick={() => onArticleClick(article)}
+              className="group relative block p-4 rounded-xl shadow-lg border border-white/10 transition-all duration-300 hover:scale-[1.03] hover:border-pink-500/50 hover:bg-white/5 cursor-pointer"
             >
-              <div
-                onClick={() => onArticleClick(article)}
-                className="group block p-4 rounded-xl shadow-lg border border-white/10 transition-all duration-300 hover:scale-[1.03] hover:border-pink-500/50 hover:bg-white/5 cursor-pointer"
-              >
-                <div className="relative overflow-hidden rounded-lg mb-4">
-                  <img
-                    src={article.image}
-                    alt={article.title}
-                    className="w-full h-48 object-cover rounded-lg transition-transform duration-300 group-hover:scale-[1.05]"
-                  />
+              <div className="relative overflow-hidden rounded-lg mb-4">
+                <img
+                  src={article.image}
+                  alt={article.title}
+                  className="w-full h-48 object-cover rounded-lg transition-transform duration-300 group-hover:scale-[1.05]"
+                />
+              </div>
+              
+              <div className="flex items-center space-x-2 text-sm text-gray-400 mb-2">
+                <div className="flex items-center gap-1">
+                  <FaCalendarAlt className="text-pink-500" />
+                  <span>{article.date}</span>
                 </div>
-                <div className="flex items-center space-x-2 text-sm text-gray-400 mb-2">
-                  <div className="flex items-center gap-1">
-                    {/* Calendar icon */}
-                    <svg className="w-3 h-3 text-pink-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                      <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd"></path>
-                    </svg>
-                    <span>{article.date}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {/* Tag icon */}
-                    <svg className="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                      <path fillRule="evenodd" d="M10.868 2.029a1.002 1.002 0 00-1.424 0L3.293 8.175a1 1 0 000 1.414l6.151 6.151a1 1 0 001.414 0l6.151-6.151a1 1 0 000-1.414L10.868 2.029zM10 5a2 2 0 100 4 2 2 0 000-4z" clipRule="evenodd"></path>
-                    </svg>
-                    <span className="text-sm font-semibold text-blue-400">{article.tag}</span>
-                  </div>
+                <div className="flex items-center gap-1">
+                  <FaTags className="text-blue-500" />
+                  <span className="font-semibold text-blue-400">{article.tag}</span>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">{article.title}</h3>
-                <p className="text-gray-300">{article.description}</p>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2 relative after:block after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-gradient-to-r after:from-pink-500 after:to-purple-500 group-hover:after:w-full after:transition-all after:duration-500">
+                {article.title}
+              </h3>
+              <p className="text-gray-300">{article.description}</p>
+              <div className="flex items-center mt-4 text-pink-500 group-hover:text-white transition-colors duration-300">
+                <span>Read more</span>
+                <HiOutlineArrowRight className="ml-2 transform group-hover:translate-x-1 transition-transform duration-300" />
               </div>
             </motion.div>
           ))}
