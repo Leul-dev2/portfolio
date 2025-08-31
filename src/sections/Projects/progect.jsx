@@ -1,26 +1,29 @@
 import { motion } from "framer-motion";
 import Tilt from "react-parallax-tilt";
-import { FaGithub, FaExternalLinkAlt, FaTools, FaCodeBranch, FaMobileAlt, FaUtensils } from "react-icons/fa";
+import { FaGithub, FaExternalLinkAlt, FaTools, FaCodeBranch, FaMobileAlt, FaUtensils, FaPlus, FaMinus, FaLaptopCode, FaChartLine, FaPaintBrush } from "react-icons/fa";
 import Particles from "react-tsparticles";
 import { loadFull } from "tsparticles";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
-// Updated project data with new icons and colors
+// The number of projects to show initially
+const INITIAL_PROJECTS_COUNT = 3;
+
+// Updated project data with more projects for the "show more" feature
 export const projects = [
   {
     title: "MERN-Stack Social Media",
     description: "A full-stack social media platform with user authentication, post creation, and real-time notifications. Built for scalability.",
     tech: ["React", "Node.js", "Express", "MongoDB", "Redux"],
-    github: "https://github.com/leul-dev2/",
-    demo: "https://github.com/leul-dev2",
-    image: "/hom.png",
+    github: "https://github.com/leul-dev2/social-media-app",
+    demo: null,
+    image: "https://github.com/leul-dev2",
     icon: <FaCodeBranch className="text-pink-500" />,
   },
   {
     title: "Flutter E-commerce App",
     description: "A cross-platform e-commerce app with a clean UI, state management, and Stripe payment integration. One codebase, all platforms.",
     tech: ["Flutter", "Dart", "Firebase", "Stripe"],
-    github: "https://github.com/leul-dev2/",
+    github: "https://github.com/leul-dev2/flutter-ecommerce",
     demo: "https://github.com/leul-dev2",
     image: "/ecomm.jpg",
     icon: <FaMobileAlt className="text-cyan-400" />,
@@ -29,10 +32,38 @@ export const projects = [
     title: "Food Delivery App",
     description: "A full-stack food delivery platform with real-time order tracking, user authentication, and an integrated payment system, built using the MERN stack and Flutter.",
     tech: ["React", "Node.js", "Express", "MongoDB"],
-    github: "https://github.com/leul-dev2/",
+    github: "https://github.com/leul-dev2/food-delivery-app",
     demo: "https://github.com/leul-dev2",
     image: "/recipes.png",
     icon: <FaUtensils className="text-yellow-400" />,
+  },
+  // Additional projects for the "show more" feature
+  {
+    title: "AI-Powered Dashboard",
+    description: "A data-rich dashboard with dynamic charts and an AI component for predictive analysis, built with MERN stack.",
+    tech: ["React", "D3.js", "Python", "TensorFlow"],
+    github: "https://github.com/leul-dev2/ai-dashboard",
+    demo: "https://yourdomain.com/dashboard",
+    image: "/images/ai-dashboard-preview.jpg",
+    icon: <FaChartLine className="text-teal-400" />,
+  },
+  {
+    title: "Portfolio Website",
+    description: "This very website! A personal portfolio showcasing projects and skills, designed with modern animations and responsive design.",
+    tech: ["React", "Next.js", "Tailwind CSS", "Framer Motion"],
+    github: "https://github.com/leul-dev2/my-portfolio",
+    demo: "https://yourdomain.com",
+    image: "/images/portfolio-preview.jpg",
+    icon: <FaLaptopCode className="text-indigo-400" />,
+  },
+  {
+    title: "Digital Art Gallery",
+    description: "An interactive gallery for digital artists to display their work, featuring a simple content management system and user profiles.",
+    tech: ["HTML", "CSS", "JavaScript", "Firebase"],
+    github: "https://github.com/leul-dev2/art-gallery",
+    demo: null,
+    image: "/images/art-gallery-preview.jpg",
+    icon: <FaPaintBrush className="text-rose-400" />,
   },
 ];
 
@@ -64,6 +95,9 @@ const item = {
 };
 
 export default function Projects() {
+  const [visibleProjects, setVisibleProjects] = useState(INITIAL_PROJECTS_COUNT);
+  const projectsToShow = projects.slice(0, visibleProjects);
+
   const particlesInit = useCallback(async (engine) => {
     await loadFull(engine);
   }, []);
@@ -91,6 +125,14 @@ export default function Projects() {
         push: { quantity: 4 },
       },
     },
+  };
+
+  const handleShowMore = () => {
+    setVisibleProjects(prev => prev + 3);
+  };
+
+  const handleShowLess = () => {
+    setVisibleProjects(INITIAL_PROJECTS_COUNT);
   };
 
   return (
@@ -134,7 +176,7 @@ export default function Projects() {
           viewport={{ once: true, amount: 0.2 }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"
         >
-          {projects.map((project, i) => (
+          {projectsToShow.map((project, i) => (
             <motion.div key={i} variants={item}>
               <Tilt
                 glareEnable={true}
@@ -150,7 +192,6 @@ export default function Projects() {
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-10 bg-gradient-to-br from-pink-500 via-purple-600 to-blue-500 animate-shimmer transition-all duration-700 rounded-3xl"></div>
 
                 <div className="relative z-10">
-                  {/* This is the new clickable link */}
                   <a
                     href={project.github}
                     target="_blank"
@@ -218,6 +259,35 @@ export default function Projects() {
               </Tilt>
             </motion.div>
           ))}
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+          className="flex justify-center space-x-4 mt-12"
+        >
+          {/* "Show More" Button */}
+          {visibleProjects < projects.length && (
+            <button
+              onClick={handleShowMore}
+              className="inline-flex items-center space-x-2 px-6 py-3 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold text-lg shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
+            >
+              <span>Show More</span>
+              <FaPlus size={18} />
+            </button>
+          )}
+
+          {/* "Show Less" Button */}
+          {visibleProjects > INITIAL_PROJECTS_COUNT && (
+            <button
+              onClick={handleShowLess}
+              className="inline-flex items-center space-x-2 px-6 py-3 rounded-full border border-purple-500 text-purple-400 font-bold text-lg transform transition-all duration-300 hover:scale-105 hover:bg-purple-900/20 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
+            >
+              <span>Show Less</span>
+              <FaMinus size={18} />
+            </button>
+          )}
         </motion.div>
       </div>
 
