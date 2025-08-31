@@ -37,7 +37,7 @@ const articles = [
     date: "July 25, 2024",
     tag: "Trends",
     description: "An exploration into the emerging technologies and frameworks shaping the next generation of web applications, including AI-driven code and serverless architecture.",
-    image: "https://images.unsplash.com/photo-1542831371-29b0f74f9457?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1200",
+    image: "/web.jpg",
     content: `
       <p>The web is constantly evolving, and staying ahead of the curve is crucial for any developer. We're seeing a massive shift towards **AI-powered development tools**, which are not just assisting with boilerplate code but are also helping to optimize performance and security.</p>
       <p>Another major trend is the rise of **serverless computing**. Platforms like AWS Lambda and Google Cloud Functions allow developers to focus on writing code without managing servers, leading to more efficient and scalable applications. This shift fundamentally changes how we think about backend architecture.</p>
@@ -49,12 +49,14 @@ const articles = [
     title: "Building Interactive UI with Framer Motion",
     date: "August 10, 2024",
     tag: "Frontend",
-    description: "A practical guide to using Framer Motion for creating stunning, fluid animations and interactive experiences in your React applications.",
-    image: "https://images.unsplash.com/photo-1550439062-609e17487246?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1200",
+    description: "A practical guide to using Flutter's built-in animation framework for creating stunning, fluid animations and interactive experiences in your Flutter applications..",
+    image: "/flutter.jpg",
     content: `
-      <p>Animations are no longer just a luxury; they are a key part of creating a great user experience. **Framer Motion** is a powerful, yet incredibly easy-to-use, animation library for React. It simplifies complex animations, making them accessible to developers of all skill levels.</p>
-      <p>The library's declarative syntax allows you to define animations directly in your component's JSX. You can use simple props like <code>initial</code>, <code>animate</code>, and <code>transition</code> to control everything from simple fades to complex keyframe animations. It's built on top of a physics-based animation engine, which gives your animations a natural, fluid feel.</p>
-      <p>Beyond basic animations, Framer Motion also provides tools for gesture recognition, drag-and-drop interactions, and scroll-based animations. It's the perfect tool for bringing your frontend designs to life and making your applications feel polished and professional.</p>
+   String htmlContent = """
+<p>Animations are no longer just a luxury; they are a key part of creating a great user experience. <strong>Flutter's built-in animation framework</strong> is a powerful, yet incredibly easy-to-use, system for creating fluid motion. It simplifies complex animations, making them accessible to developers of all skill levels.</p>
+<p>The framework's declarative approach allows you to define animations using widgets like <code>AnimatedContainer</code>, <code>TweenAnimationBuilder</code>, and the <code>AnimationController</code> class. You can use properties like <code>duration</code>, <code>curve</code>, and <code>Tween</code> to control everything from simple fades to complex staggered animations. It's built to leverage hardware acceleration for 60fps performance, which gives your animations a natural, fluid feel.</p>
+<p>Beyond basic animations, Flutter also provides built-in tools for hero animations, physics-based simulations using springs, gesture recognition, drag-and-drop interactions, and scroll-based animations. It's the perfect toolkit for bringing your frontend designs to life and making your applications feel polished and professional.</p>
+""";
     `,
   },
   {

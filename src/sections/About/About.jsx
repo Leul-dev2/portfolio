@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import Particles from "react-tsparticles";
 import { loadFull } from "tsparticles";
 import Tilt from "react-parallax-tilt";
@@ -37,30 +37,19 @@ const techIcons = [
 const AboutSection = () => {
   const [isHovered, setIsHovered] = useState(false);
   const techContainerRef = useRef(null);
+  const sectionRef = useRef(null);
+
+  // Advanced Framer Motion: Parallax scroll effect
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  const scale = useTransform(scrollYProgress, [0, 1], [0.8, 1]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0, 1, 0]);
+
+  // Particle JS setup
   const particlesInit = useCallback(async (engine) => {
     await loadFull(engine);
-  }, []);
-
-  useEffect(() => {
-    // Pause animation on hover for better UX
-    const container = techContainerRef.current;
-    if (!container) return;
-
-    const handleMouseEnter = () => {
-      setIsHovered(true);
-    };
-
-    const handleMouseLeave = () => {
-      setIsHovered(false);
-    };
-
-    container.addEventListener('mouseenter', handleMouseEnter);
-    container.addEventListener('mouseleave', handleMouseLeave);
-
-    return () => {
-      container.removeEventListener('mouseenter', handleMouseEnter);
-      container.removeEventListener('mouseleave', handleMouseLeave);
-    };
   }, []);
 
   const particlesOptions = {
@@ -72,25 +61,52 @@ const AboutSection = () => {
       modes: { repulse: { distance: 100, duration: 0.4 } },
     },
     particles: {
-      color: { value: "#ffffff" },
+      color: { value: "#a855f7" }, // Upgraded particle color
       links: {
-        color: "#a855f7",
+        color: "#fcd34d", // Upgraded link color
         distance: 140,
         enable: true,
-        opacity: 0.3,
+        opacity: 0.4,
         width: 1,
       },
       move: { enable: true, speed: 1.5, outModes: "out" },
-      number: { value: 60, density: { enable: true, area: 900 } },
-      opacity: { value: 0.2 },
+      number: { value: 70, density: { enable: true, area: 900 } },
+      opacity: { value: 0.3 },
       shape: { type: ["circle", "triangle", "polygon"] },
-      size: { value: { min: 1, max: 2.5 } },
+      size: { value: { min: 1, max: 3 } },
     },
     detectRetina: true,
   };
 
+  // Tech stack infinite scroll on hover effect
+  useEffect(() => {
+    const container = techContainerRef.current;
+    if (!container) return;
+
+    const handleMouseEnter = () => setIsHovered(true);
+    const handleMouseLeave = () => setIsHovered(false);
+
+    container.addEventListener('mouseenter', handleMouseEnter);
+    container.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      container.removeEventListener('mouseenter', handleMouseEnter);
+      container.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, []);
+
   const myPhoto = "/leul.jpg";
   const cvUrl = "/Leul_Resume.pdf";
+
+  const handleDownload = (event) => {
+    event.preventDefault();
+    const link = document.createElement('a');
+    link.href = cvUrl;
+    link.download = 'Leul_Resume.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const containerVariants = {
     hidden: { opacity: 0, y: 50 },
@@ -117,23 +133,28 @@ const AboutSection = () => {
   return (
     <AnimatePresence>
       <motion.section
+        ref={sectionRef} // Ref for scroll effects
         id="about"
-        className="relative min-h-screen flex flex-col items-center justify-center px-6 md:px-24 py-28 bg-[#0c1221] text-white overflow-hidden"
+        className="relative min-h-screen flex flex-col items-center justify-center px-6 md:px-24 py-28 bg-[#0a0f1c] text-white overflow-hidden"
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.2 }}
       >
-        {/* Background Effects */}
-        <div className="absolute inset-0 z-0 opacity-40">
-            <Particles
-              id="tsparticles-about"
-              init={particlesInit}
-              options={particlesOptions}
-              className="absolute inset-0 z-0 h-full w-full"
-            />
-        </div>
-
+        {/* Advanced Background Effects: Parallax and Blur */}
+        <motion.div
+          className="absolute inset-0 z-0 bg-transparent"
+          style={{ opacity, scale }}
+        >
+          <div className="absolute inset-0 z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/30 via-transparent to-transparent opacity-80" />
+          <Particles
+            id="tsparticles-about"
+            init={particlesInit}
+            options={particlesOptions}
+            className="absolute inset-0 z-20 h-full w-full"
+          />
+        </motion.div>
+        
         {/* Main Content Container */}
         <div className="relative z-20 w-full max-w-7xl flex flex-col lg:flex-row items-center justify-between gap-16 lg:gap-24">
           {/* Left Side: Text Content */}
@@ -143,13 +164,13 @@ const AboutSection = () => {
           >
             <motion.h2
               variants={childVariants}
-              className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-yellow-400 mb-6"
+              className="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-yellow-400 mb-6 drop-shadow-lg"
             >
-              About Me
+              Leul Y.
             </motion.h2>
             <motion.h3
               variants={childVariants}
-              className="text-2xl md:text-4xl font-bold mb-4"
+              className="text-3xl md:text-5xl font-bold mb-4 leading-tight text-gray-100"
             >
               A Flutter & MERN Craftsman
             </motion.h3>
@@ -168,6 +189,7 @@ const AboutSection = () => {
             <motion.a
               variants={childVariants}
               href={cvUrl}
+              onClick={handleDownload}
               download
               className="mt-8 inline-block px-12 py-4 font-bold rounded-full bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 text-white shadow-xl hover:shadow-pink-500/80 hover:scale-105 transition transform duration-500"
               whileHover={{ scale: 1.1, boxShadow: "0 0 20px rgba(236,72,153,0.8)" }}
@@ -177,20 +199,25 @@ const AboutSection = () => {
             </motion.a>
           </motion.div>
 
-          {/* Right Side: Photo */}
-          <div className="flex-1 flex justify-center lg:justify-end">
+          {/* Right Side: Photo with enhanced effects */}
+          <motion.div
+            className="flex-1 flex justify-center lg:justify-end relative"
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0, transition: { duration: 1, ease: "easeOut" } }}
+            viewport={{ once: true }}
+          >
             <Tilt
-                glareEnable={true}
-                glareMaxOpacity={0.3}
-                glareColor="#ffffff"
-                glarePosition="all"
-                scale={1.05}
-                className="w-72 h-80 md:w-[400px] md:h-[500px] rounded-[40px] shadow-2xl relative"
+              glareEnable={true}
+              glareMaxOpacity={0.4}
+              glareColor="#ffffff"
+              glarePosition="all"
+              scale={1.05}
+              className="w-72 h-80 md:w-[400px] md:h-[500px] rounded-[40px] shadow-2xl relative overflow-hidden transition-all duration-700 ease-in-out"
             >
               <img
                 src={myPhoto}
                 alt="Leul Profile"
-                className="object-cover w-full h-full rounded-[40px] grayscale group-hover:grayscale-0 transition-all duration-700 ease-in-out"
+                className="object-cover w-full h-full rounded-[40px] filter grayscale hover:grayscale-0 transition-all duration-700 ease-in-out"
                 loading="lazy"
               />
               <div className="absolute inset-0 rounded-[40px] border-4 border-transparent pointer-events-none" style={{
@@ -200,7 +227,7 @@ const AboutSection = () => {
                 maskComposite: 'exclude',
               }} />
             </Tilt>
-          </div>
+          </motion.div>
         </div>
 
         {/* Tech Stack Section - FIXED */}
