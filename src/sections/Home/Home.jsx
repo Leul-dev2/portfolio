@@ -8,13 +8,20 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Sphere, MeshDistortMaterial } from "@react-three/drei";
 import Typed from "typed.js";
 
-// UPDATED NAVLINKS
-const navLinks = ["Home", "About", "service", "Project", "Article", "Contact"];
+// FIXED: Using an array of objects for robust navigation
+const navLinks = [
+  { title: "Home", id: "home" },
+  { title: "About", id: "about" },
+  { title: "Services", id: "services" },
+  { title: "Projects", id: "projects" },
+  { title: "Article", id: "blog" },
+  { title: "Contact", id: "contact" },
+];
 
 const socialIcons = [
-  { Icon: FaGithub, url: "https://github.com" },
-  { Icon: FaLinkedin, url: "https://linkedin.com" },
-  { Icon: FaEnvelope, url: "mailto:you@example.com" },
+  { Icon: FaGithub, url: "https://github.com/leul-dev2" },
+  { Icon: FaLinkedin, url: "https://www.linkedin.com/in/leul-seyoum/" },
+  { Icon: FaEnvelope, url: "mailto:leulsegedseyoum@gmail.com" }, // TODO: Update with your email
 ];
 
 const skillSet = [
@@ -24,19 +31,48 @@ const skillSet = [
   { name: "UI/UX", level: 95, icon: FaMagic, color: "from-purple-400 to-purple-600" },
 ];
 
+// REFACTORED: Secure and declarative SVG animation component
+const AnimatedStar = () => {
+  const starPath = "M256 32L318.6 170.3L472 180.9L354 289.3L387.7 442L256 364.3L124.3 442L158 289.3L40 180.9L193.4 170.3L256 32Z";
+
+  return (
+    <svg 
+      viewBox="0 0 512 512" 
+      fill="transparent" 
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-full h-auto"
+    >
+      <defs>
+        <linearGradient id="gradient-line" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FCD34D" />
+          <stop offset="50%" stopColor="#EC4899" />
+          <stop offset="100%" stopColor="#A855F7" />
+        </linearGradient>
+      </defs>
+      <motion.path
+        d={starPath}
+        stroke="url(#gradient-line)"
+        strokeWidth="10"
+        strokeLinecap="round"
+        initial={{ pathLength: 0 }}
+        animate={{ pathLength: 1 }}
+        transition={{ duration: 4, ease: "easeInOut" }}
+      />
+    </svg>
+  );
+};
+
 const Home = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeLink, setActiveLink] = useState("Home");
+  const [activeLink, setActiveLink] = useState("home");
   const [isScrolled, setIsScrolled] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
 
-  // Refs for direct DOM manipulation
   const audioRef = useRef(null);
   const typedElement = useRef(null);
   const cursorRef = useRef(null);
-  const interactiveElementsRef = useRef([]);
-  const svgContainerRef = useRef(null);
+  const mobileMenuRef = useRef(null);
 
   const { scrollY } = useScroll();
 
@@ -57,75 +93,32 @@ const Home = () => {
       backSpeed: 30,
       backDelay: 2000,
       loop: true,
-      showCursor: true,
       cursorChar: "|",
     });
 
-    // SVG Line Drawing Animation Logic
-    const animateSvg = async () => {
-      try {
-        const response = await fetch('/star.svg');
-        const svgText = await response.text();
-        if (svgContainerRef.current) {
-          svgContainerRef.current.innerHTML = svgText;
-          const paths = svgContainerRef.current.querySelectorAll("path");
-          paths.forEach((path) => {
-            const length = path.getTotalLength();
-            path.style.strokeDasharray = length;
-            path.style.strokeDashoffset = length;
-            path.style.transition = `stroke-dashoffset 4s ease-in-out`;
-            path.style.stroke = "url(#gradient-line)"; // Use the gradient from the SVG
-            path.style.fill = "transparent";
-
-            // Trigger the animation
-            setTimeout(() => {
-              path.style.strokeDashoffset = 0;
-            }, 500);
-          });
-        }
-      } catch (error) {
-        console.error("Failed to load or animate SVG:", error);
+    const handleOutsideClick = (event) => {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target) && menuOpen) {
+        setMenuOpen(false);
       }
     };
-
-    animateSvg();
-
+    
+    document.addEventListener("mousedown", handleOutsideClick);
+    
     return () => {
       typed.destroy();
+      document.removeEventListener("mousedown", handleOutsideClick);
     };
   }, [menuOpen]);
 
-  // Custom Cursor - uses requestAnimationFrame for smooth performance
+  // REFACTORED: Simplified cursor animation effect
   useEffect(() => {
-    let animationFrameId;
-    const animateCursor = (e) => {
-      const cursor = cursorRef.current;
-      if (cursor) {
-        cursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+    const handleMouseMove = (e) => {
+      if (cursorRef.current) {
+        cursorRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
       }
     };
-    const handleMouseMove = (e) => {
-      cancelAnimationFrame(animationFrameId);
-      animationFrameId = requestAnimationFrame(() => animateCursor(e));
-    };
-    const handleMouseEnter = () => setIsHovering(true);
-    const handleMouseLeave = () => setIsHovering(false);
-    interactiveElementsRef.current = document.querySelectorAll("a, button, .interactive");
-    interactiveElementsRef.current.forEach((el) => {
-      el.addEventListener("mouseenter", handleMouseEnter);
-      el.addEventListener("mouseleave", handleMouseLeave);
-    });
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseleave", handleMouseLeave);
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      interactiveElementsRef.current.forEach((el) => {
-        el.removeEventListener("mouseenter", handleMouseEnter);
-        el.removeEventListener("mouseleave", handleMouseLeave);
-      });
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseleave", handleMouseLeave);
-    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
   const toggleAudio = () => {
@@ -137,25 +130,26 @@ const Home = () => {
     setAudioPlaying(!audioPlaying);
   };
 
-  const handleNavClick = (e, link) => {
+  const handleNavClick = (e, id) => {
     e.preventDefault();
-    setActiveLink(link);
+    setActiveLink(id);
     setMenuOpen(false);
-    const target = document.getElementById(link.toLowerCase());
-    if (target) target.scrollIntoView({ behavior: "smooth" });
+    const target = document.getElementById(id);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth" });
+    }
   };
+
+  const handleMouseEnter = () => setIsHovering(true);
+  const handleMouseLeave = () => setIsHovering(false);
 
   const CustomCursor = () => (
     <motion.div
       ref={cursorRef}
-      className={`fixed pointer-events-none z-[99] rounded-full transition-all duration-300 ease-out mix-blend-difference ${
+      className={`fixed pointer-events-none z-[99] hidden md:block rounded-full transition-all duration-300 ease-out mix-blend-difference ${
         isHovering ? "w-10 h-10 bg-white/50" : "w-8 h-8 bg-white/20"
       }`}
-      style={{
-        left: "-20px",
-        top: "-20px",
-      }}
-      initial={{ scale: 1 }}
+      style={{ left: "-20px", top: "-20px" }}
       animate={{ scale: isHovering ? 1.5 : 1 }}
     />
   );
@@ -184,15 +178,14 @@ const Home = () => {
   };
 
   return (
-    <section
-      id="home"
-      className="relative min-h-screen bg-[#0c1221] text-white overflow-hidden"
-    >
+    <section id="home" className="relative min-h-screen bg-[#0c1221] text-white overflow-hidden">
       <audio ref={audioRef} loop src="/ambient-space.mp3" />
       <CustomCursor />
       <button
         onClick={toggleAudio}
-        className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-purple-600/30 backdrop-blur-md flex items-center justify-center text-white border border-white/20 hover:bg-purple-600/50 transition-all interactive"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-purple-600/30 backdrop-blur-md flex items-center justify-center text-white border border-white/20 hover:bg-purple-600/50 transition-all"
         aria-label="Toggle ambient sound"
       >
         {audioPlaying ? "🔇" : "🔊"}
@@ -248,9 +241,7 @@ const Home = () => {
             number: { density: { enable: true, area: 800 }, value: 80 },
             opacity: { value: { min: 0.1, max: 0.3 } },
             size: { value: { min: 1, max: 3 } },
-            shape: {
-              type: ["circle", "square", "triangle"],
-            },
+            shape: { type: ["circle", "square", "triangle"] },
           },
         }}
         className="absolute inset-0 z-0"
@@ -269,56 +260,47 @@ const Home = () => {
         }`}
       >
         <div className="flex items-center justify-between px-6 md:px-12 py-5 max-w-7xl mx-auto">
-          <motion.h1
-            className="text-3xl font-extrabold tracking-wide cursor-pointer relative interactive"
+          <motion.div
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-500 via-pink-500 to-yellow-400">
-              Leul.dev
-            </span>
-            <motion.span
-              className="text-white text-4xl absolute -top-1 -right-8"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1, duration: 0.5 }}
-            >
-              ⚡
-            </motion.span>
-          </motion.h1>
+            <a href="#home" onClick={(e) => handleNavClick(e, "home")} className="text-3xl font-extrabold tracking-wide cursor-pointer relative">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-500 via-pink-500 to-yellow-400">
+                Leul.dev
+              </span>
+            </a>
+          </motion.div>
           <div className="hidden md:flex gap-10 text-lg font-medium text-gray-300">
             {navLinks.map((link) => (
-              <motion.button
-                key={link}
-                onClick={(e) => handleNavClick(e, link)}
-                className={`group relative transition duration-300 hover:text-white interactive ${
-                  activeLink === link ? "text-white" : ""
+              <motion.a
+                key={link.id}
+                href={`#${link.id}`}
+                onClick={(e) => handleNavClick(e, link.id)}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                className={`group relative transition duration-300 hover:text-white ${
+                  activeLink === link.id ? "text-white" : ""
                 }`}
                 whileHover={{ y: -2 }}
                 whileTap={{ y: 0 }}
               >
-                {link}
-                <motion.span
-                  className="absolute -bottom-1 left-0 h-0.5 w-full bg-gradient-to-r from-pink-500 via-purple-500 to-yellow-400 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity"
-                  initial={{ width: 0 }}
-                  animate={{ width: activeLink === link ? "100%" : "0%" }}
-                  transition={{ duration: 0.3 }}
-                />
-                {activeLink === link && (
+                {link.title}
+                {activeLink === link.id && (
                   <motion.span
                     layoutId="underline"
-                    className="absolute -bottom-1 left-0 h-0.5 w-full bg-gradient-to-r from-pink-500 via-purple-500 to-yellow-400 rounded-sm"
-                    initial={{ y: "100%", opacity: 0 }}
-                    animate={{ y: "0%", opacity: 1 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    className="absolute -bottom-1 left-0 h-0.5 w-full bg-gradient-to-r from-pink-500 to-purple-500"
                   />
                 )}
-              </motion.button>
+              </motion.a>
             ))}
           </div>
           <motion.button
-            className="md:hidden text-3xl text-white bg-white/10 p-2 rounded-lg interactive"
+            className="md:hidden text-3xl text-white bg-white/10 p-2 rounded-lg"
             onClick={() => setMenuOpen(!menuOpen)}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
@@ -330,51 +312,28 @@ const Home = () => {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
+            ref={mobileMenuRef}
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed top-0 right-0 w-full max-w-xs h-full bg-[#0c1221]/95 backdrop-blur-2xl border-l border-white/10 z-50 px-8 py-16 space-y-10"
+            className="fixed top-0 right-0 w-full max-w-xs h-full bg-[#0c1221]/95 backdrop-blur-2xl border-l border-white/10 z-[60] px-8 py-16"
           >
-            <motion.button
-              className="absolute top-6 right-6 text-4xl text-white interactive"
-              onClick={() => setMenuOpen(false)}
-              whileHover={{ rotate: 90 }}
-              transition={{ duration: 0.5 }}
-            >
-              <FaTimes />
-            </motion.button>
-            {/* UPDATED MOBILE MENU LINKS */}
             <div className="flex flex-col gap-6 mt-16">
               {navLinks.map((link) => (
                 <motion.a
-                  key={link}
-                  href={`#${link.toLowerCase()}`}
-                  onClick={(e) => handleNavClick(e, link)}
-                  className={`block w-full text-left text-2xl font-bold px-4 py-3 rounded-xl transition-all interactive ${
-                    activeLink === link
+                  key={link.id}
+                  href={`#${link.id}`}
+                  onClick={(e) => handleNavClick(e, link.id)}
+                  className={`block w-full text-left text-2xl font-bold px-4 py-3 rounded-xl transition-all ${
+                    activeLink === link.id
                       ? "bg-gradient-to-r from-pink-600/40 to-purple-600/40 text-white shadow-lg"
                       : "text-gray-300 hover:text-white hover:bg-white/10"
                   }`}
                   whileHover={{ x: 10 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  {link}
-                </motion.a>
-              ))}
-            </div>
-            <div className="absolute bottom-10 left-8 right-8 flex justify-center space-x-6">
-              {socialIcons.map(({ Icon, url }, i) => (
-                <motion.a
-                  key={i}
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-2xl bg-white/10 p-3 rounded-full hover:bg-white/20 transition interactive"
-                  whileHover={{ y: -5, scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <Icon />
+                  {link.title}
                 </motion.a>
               ))}
             </div>
@@ -382,140 +341,102 @@ const Home = () => {
         )}
       </AnimatePresence>
 
-      <div className="relative z-10 flex flex-col md:flex-row items-center justify-center max-w-7xl px-6 md:px-12 py-28 mx-auto gap-16">
+      <div className="relative z-10 flex flex-col md:flex-row items-center justify-center min-h-screen max-w-7xl px-6 md:px-12 mx-auto gap-16">
         <motion.div
           initial="hidden"
           animate="visible"
           variants={{
-            hidden: { opacity: 0, y: 20 },
-            visible: {
-              opacity: 1,
-              y: 0,
-              transition: {
-                delayChildren: 0.2,
-                staggerChildren: 0.1,
-              },
-            },
+            visible: { transition: { staggerChildren: 0.1 } },
           }}
-          className="flex-1"
+          className="flex-1 text-center md:text-left"
         >
           <motion.h1
+            variants={wordVariants}
             className="text-5xl md:text-7xl font-extrabold leading-tight text-white"
           >
-            {"Hey! I'm ".split(" ").map((word, i) => (
-              <motion.span
-                key={i}
-                className="inline-block"
-                variants={wordVariants}
-              >
-                {word}{" "}
-              </motion.span>
-            ))}
-            <motion.span
-              className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-yellow-400"
-              variants={wordVariants}
-            >
-              <span className="underline decoration-yellow-400">Leul</span>
-            </motion.span>
+            Hey! I'm{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-yellow-400">
+              Leul
+            </span>
             <motion.span
               className="inline-block"
-              variants={wordVariants}
               animate={{ rotate: [0, 20, -20, 0] }}
-              transition={{ repeat: Infinity, duration: 2 }}
+              transition={{ repeat: Infinity, duration: 2, delay: 1 }}
             >
-              {" "}👋
+              👋
             </motion.span>
           </motion.h1>
+
           <div className="mt-6 h-12">
             <span className="text-2xl text-gray-200 font-medium">I'm a </span>
             <span ref={typedElement} className="text-2xl text-yellow-400 font-bold" />
           </div>
-          <motion.p className="mt-6 text-xl text-gray-200 max-w-xl font-medium"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.5, duration: 0.8 }}
+
+          <motion.p 
+            variants={wordVariants}
+            className="mt-6 text-xl text-gray-200 max-w-xl mx-auto md:mx-0 font-medium"
           >
             Crafting immersive digital experiences with cutting-edge technology and innovative design.
           </motion.p>
-          <motion.a
-            href="#contact"
-            onClick={(e) => handleNavClick(e, "Contact")}
-            className="inline-block mt-10 px-12 py-5 bg-gradient-to-r from-pink-500 via-purple-500 to-yellow-400 text-black text-xl font-bold rounded-full shadow-lg relative overflow-hidden group interactive"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <span className="relative z-10">Let's Connect ⚡</span>
-            <span className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0)0%,rgba(255,255,255,0.4)50%,rgba(255,255,255,0)100%)] group-hover:animate-shimmer" />
-          </motion.a>
-          <div className="flex mt-12 space-x-6">
+          
+          <motion.div variants={wordVariants}>
+            <a
+              href="#contact"
+              onClick={(e) => handleNavClick(e, "contact")}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              className="inline-block mt-10 px-12 py-5 bg-gradient-to-r from-pink-500 via-purple-500 to-yellow-400 text-black text-xl font-bold rounded-full shadow-lg relative overflow-hidden group"
+            >
+              <span className="relative z-10">Let's Connect ⚡</span>
+            </a>
+          </motion.div>
+          
+          <motion.div variants={wordVariants} className="flex mt-12 space-x-6 justify-center md:justify-start">
             {socialIcons.map(({ Icon, url }, i) => (
               <motion.a
                 key={i}
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-2xl bg-white/10 p-3 rounded-full hover:bg-white/20 transition interactive"
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                className="text-2xl bg-white/10 p-3 rounded-full hover:bg-white/20 transition"
                 whileHover={{ y: -5, scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
               >
                 <Icon />
               </motion.a>
             ))}
-          </div>
+          </motion.div>
         </motion.div>
 
-        {/* Hero Visual - SVG Line Drawing Animation */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, duration: 0.8 }}
-          className="flex-1 flex justify-center relative"
+          className="flex-1 hidden md:flex justify-center relative"
         >
           <Tilt
-            tiltEnable={false}
+            tiltEnable={true}
             glareEnable={true}
             glareMaxOpacity={0.3}
             glareColor="#ffffff"
             glarePosition="all"
             scale={1.05}
-            className="max-w-md w-full relative"
+            className="w-full max-w-md"
           >
             <motion.div
               animate={{ y: [0, -15, 0] }}
               transition={{ duration: 6, repeat: Infinity }}
             >
-              <div ref={svgContainerRef} className="w-full h-auto" />
+              <AnimatedStar />
             </motion.div>
-
-            {/* Floating elements */}
-            {skillSet.map((skill, i) => (
-              <motion.div
-                key={i}
-                className={`absolute w-16 h-16 rounded-full bg-gradient-to-br ${skill.color} flex items-center justify-center text-white text-xl shadow-lg interactive`}
-                style={{
-                  top: `${20 + i * 15}%`,
-                  left: i % 2 === 0 ? "-10%" : "90%",
-                }}
-                animate={{
-                  y: [0, -20, 0],
-                  rotate: [0, 10, 0],
-                  boxShadow: ["0 0 10px rgba(255,255,255,0.2)", "0 0 20px rgba(255,255,255,0.4)", "0 0 10px rgba(255,255,255,0.2)"],
-                }}
-                transition={{
-                  duration: 3 + i,
-                  repeat: Infinity,
-                  delay: i * 0.5,
-                }}
-              >
-                <skill.icon />
-              </motion.div>
-            ))}
           </Tilt>
         </motion.div>
       </div>
 
       <motion.div
-        className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center"
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5 }}
@@ -524,11 +445,11 @@ const Home = () => {
         <motion.div
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 1.5, repeat: Infinity }}
-          className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center"
+          className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center p-1"
         >
           <motion.div
-            className="w-1 h-3 bg-white rounded-full mt-2"
-            animate={{ opacity: [0, 1, 0] }}
+            className="w-1 h-2 bg-white rounded-full"
+            animate={{ y: [0, 14, 0], opacity: [1, 0, 1] }}
             transition={{ duration: 1.5, repeat: Infinity }}
           />
         </motion.div>
