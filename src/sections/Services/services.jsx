@@ -1,196 +1,182 @@
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { FaCode, FaLaptopCode, FaRocket, FaMobileAlt, FaDatabase, FaArrowUp } from "react-icons/fa";
-import { useEffect, useState, useRef } from "react";
+import { motion, useInView, AnimatePresence } from "framer-motion";
+import { useRef, useState, useEffect } from "react";
 import Tilt from "react-parallax-tilt";
+import { FaLaptopCode, FaRocket, FaMobileAlt, FaDatabase, FaArrowUp, FaPalette, FaShieldAlt, FaCloud } from "react-icons/fa";
 
-// Service data with enhanced details
-export const services = [
-  {
-    icon: <FaLaptopCode size={32} className="text-cyan-400 group-hover:scale-125 transition-transform duration-500" />,
-    title: "MERN Stack Development",
-    description: "Architecting robust and scalable full-stack applications with MongoDB, Express, React, and Node.js. Crafting RESTful APIs and dynamic dashboards.",
-    tags: ["MongoDB", "Express", "React", "Node.js"],
-    color: "from-blue-600 to-cyan-500"
-  },
-  {
-    icon: <FaMobileAlt size={32} className="text-fuchsia-400 group-hover:scale-125 transition-transform duration-500" />,
-    title: "Cross-Platform Apps",
-    description: "Building beautiful, native-like mobile and web applications from a single codebase using the power of Flutter and Dart. Fast, flexible, and feature-rich.",
-    tags: ["Flutter", "Dart", "iOS", "Android"],
-    color: "from-purple-600 to-fuchsia-500"
-  },
-  {
-    icon: <FaDatabase size={32} className="text-emerald-400 group-hover:scale-125 transition-transform duration-500" />,
-    title: "Database Management & APIs",
-    description: "Designing and optimizing database schemas, ensuring data integrity, and building high-performance APIs for seamless frontend-backend communication.",
-    tags: ["REST APIs", "GraphQL", "SQL", "NoSQL"],
-    color: "from-green-600 to-emerald-500"
-  },
+const services = [
+  { icon:<FaLaptopCode size={22}/>, title:"MERN Stack Development",  desc:"Architecting robust full-stack apps with MongoDB, Express, React, and Node.js. From RESTful APIs to real-time dashboards.", tags:["MongoDB","Express","React","Node.js"],   color:"#00FFB2", grad:"linear-gradient(135deg,#00FFB2,#00D4FF)" },
+  { icon:<FaMobileAlt  size={22}/>, title:"Cross-Platform Apps",     desc:"Building beautiful native-like mobile and web apps from a single codebase using Flutter & Dart. Fast, flexible, feature-rich.", tags:["Flutter","Dart","iOS","Android"],        color:"#7C3AED", grad:"linear-gradient(135deg,#7C3AED,#A78BFA)" },
+  { icon:<FaDatabase   size={22}/>, title:"Database & API Design",   desc:"Designing optimized database schemas, ensuring data integrity, and building high-performance APIs for seamless communication.", tags:["REST APIs","GraphQL","SQL","NoSQL"],       color:"#4ADE80", grad:"linear-gradient(135deg,#4ADE80,#22D3EE)" },
+  { icon:<FaPalette    size={22}/>, title:"UI/UX Design",            desc:"Creating intuitive, pixel-perfect interfaces with a focus on user experience. From wireframes to polished prototypes.",          tags:["Figma","Prototyping","Design Systems","A11y"], color:"#FF4D6D", grad:"linear-gradient(135deg,#FF4D6D,#F97316)" },
+  { icon:<FaShieldAlt  size={22}/>, title:"Security & Performance",  desc:"Implementing best practices for application security, performance optimization, and scalability for production-grade apps.",      tags:["Auth","Optimization","Testing","CI/CD"],  color:"#F59E0B", grad:"linear-gradient(135deg,#F59E0B,#F97316)" },
+  { icon:<FaCloud      size={22}/>, title:"Cloud & DevOps",          desc:"Deploying and managing apps on cloud platforms. Setting up CI/CD pipelines, containerization, and monitoring.",                   tags:["AWS","Docker","Vercel","GitHub Actions"],  color:"#60A5FA", grad:"linear-gradient(135deg,#60A5FA,#818CF8)" },
 ];
 
-// Animation variants for the card reveal
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.2,
-      delayChildren: 0.5,
-    },
-  },
-};
+function ServiceCard({ service, index }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-50px" });
+  const [hovered, setHovered] = useState(false);
 
-const cardVariants = {
-  hidden: { opacity: 0, y: 50, scale: 0.8 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      type: "spring",
-      stiffness: 100,
-      damping: 10,
-    },
-  },
-};
-
-const ServiceCard = ({ service }) => {
   return (
     <motion.div
-      variants={cardVariants}
-      className="p-1 rounded-2xl relative overflow-hidden group hover:scale-[1.03] transition-transform duration-500"
+      ref={ref}
+      initial={{ opacity: 0, y: 36 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.65, delay: index * 0.09, ease: [0.23, 1, 0.32, 1] }}
     >
-      <div className={`absolute inset-0 z-0 bg-gradient-to-br ${service.color} opacity-20 group-hover:opacity-60 transition-opacity duration-700 blur-2xl`} />
-      <div className="relative z-10 p-8 bg-black/50 backdrop-blur-md rounded-xl border border-white/5 transition-all duration-300">
-        <motion.div
-          className="w-16 h-16 rounded-full flex items-center justify-center mb-4 border border-white/20 relative before:absolute before:inset-0 before:rounded-full before:bg-white/20 before:animate-ping-slow"
-          initial={{ rotate: 0 }}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+      <Tilt tiltMaxAngleX={7} tiltMaxAngleY={7} scale={1.025} transitionSpeed={2200} glareEnable glareMaxOpacity={0.06} glareColor="#ffffff">
+        <div
+          style={{ height: "100%", position: "relative", borderRadius: 20, cursor: "default" }}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
         >
-          {service.icon}
-        </motion.div>
-        <h3 className="text-3xl font-bold mb-2 text-white">{service.title}</h3>
-        <p className="text-gray-300 leading-relaxed text-lg">{service.description}</p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {service.tags.map((tag, i) => (
-            <span key={i} className="text-xs px-2 py-1 rounded-full bg-white/10 text-white/70 font-mono border border-white/10">{tag}</span>
-          ))}
+          {/* Glow */}
+          <div style={{
+            position: "absolute", inset: -1, borderRadius: 21,
+            background: hovered ? `linear-gradient(135deg, ${service.color}22, transparent)` : "transparent",
+            transition: "background 0.5s ease", zIndex: 0,
+          }} />
+
+          <div style={{
+            position: "relative", zIndex: 1, height: "100%", minHeight: 270,
+            background: "var(--c-surface)", backdropFilter: "blur(16px)",
+            border: `1px solid ${hovered ? service.color + "28" : "var(--c-border-muted)"}`,
+            borderRadius: 20, padding: "clamp(1.2rem,3vw,1.8rem)",
+            display: "flex", flexDirection: "column",
+            transition: "border-color 0.4s ease, box-shadow 0.4s ease",
+            boxShadow: hovered ? `0 20px 48px ${service.color}14` : "none",
+          }}>
+            {/* Icon */}
+            <div style={{
+              width: 48, height: 48, borderRadius: 14,
+              background: hovered ? service.grad : "var(--c-surface-2)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              color: hovered ? "var(--c-bg)" : service.color,
+              marginBottom: "1.2rem",
+              transition: "background 0.4s ease, color 0.4s ease, transform 0.4s ease",
+              transform: hovered ? "scale(1.1)" : "scale(1)",
+              boxShadow: hovered ? `0 8px 20px ${service.color}40` : "none",
+            }}>
+              {service.icon}
+            </div>
+
+            {/* Title */}
+            <h3 style={{
+              fontFamily: "var(--f-display)", fontSize: "clamp(0.95rem,1.8vw,1.1rem)",
+              fontWeight: 700, color: "var(--c-text)", marginBottom: "0.6rem",
+              transition: "color 0.3s",
+            }}>
+              {service.title}
+            </h3>
+
+            {/* Desc */}
+            <p style={{
+              fontSize: 13.5, color: "var(--c-text-2)", lineHeight: 1.68,
+              marginBottom: "1.2rem", flex: 1,
+            }}>
+              {service.desc}
+            </p>
+
+            {/* Tags */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: "auto" }}>
+              {service.tags.map(tag => (
+                <span key={tag} style={{
+                  fontSize: 11, padding: "3px 10px", borderRadius: 6,
+                  background: hovered ? `${service.color}12` : "var(--c-surface-2)",
+                  border: `1px solid ${hovered ? service.color + "28" : "var(--c-border-muted)"}`,
+                  color: hovered ? service.color : "var(--c-text-2)",
+                  fontFamily: "var(--f-mono)",
+                  transition: "all 0.35s ease",
+                }}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            {/* Arrow */}
+            <motion.div
+              animate={{ opacity: hovered ? 1 : 0, scale: hovered ? 1 : 0.7 }}
+              transition={{ duration: 0.25 }}
+              style={{
+                position: "absolute", bottom: 18, right: 18,
+                width: 32, height: 32, borderRadius: "50%",
+                background: service.grad,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: "var(--c-bg)", fontSize: 13, fontWeight: 700,
+              }}
+            >
+              ↗
+            </motion.div>
+          </div>
         </div>
-      </div>
+      </Tilt>
     </motion.div>
   );
-};
+}
 
 export default function ServicesSection() {
-  const [showButton, setShowButton] = useState(false);
-  const timeoutRef = useRef(null);
-  const sectionRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-
-  // Parallax effects
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "-50%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-
+  const [showTop, setShowTop] = useState(false);
   useEffect(() => {
-    const handleScroll = () => {
-      setShowButton(window.scrollY > 300);
-    };
-
-    const debounce = (func, wait = 100) => {
-      return () => {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = setTimeout(func, wait);
-      };
-    };
-
-    const debouncedScroll = debounce(handleScroll);
-    window.addEventListener("scroll", debouncedScroll);
-
-    return () => window.removeEventListener("scroll", debouncedScroll);
+    const fn = () => setShowTop(window.scrollY > 400);
+    window.addEventListener("scroll", fn, { passive: true });
+    return () => window.removeEventListener("scroll", fn);
   }, []);
 
   return (
-    <section
-      id="services"
-      ref={sectionRef}
-      className="relative min-h-screen bg-black text-white px-4 md:px-6 py-20 overflow-hidden"
-    >
-      {/* Dynamic Background */}
-      <motion.div
-        className="absolute inset-0 z-0 opacity-40"
-        style={{ y: y }}
-      >
-        <motion.div
-          className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-950 to-transparent"
-          style={{ opacity: opacity }}
-        />
-        {/* Animated Code Grid */}
-        <div className="absolute inset-0 z-0 opacity-50 [mask-image:radial-gradient(transparent,black)]">
-          <div className="w-full h-full bg-[url('/grid-pattern.svg')] bg-repeat-space" />
-          <motion.div
-            className="absolute inset-0 bg-[conic-gradient(from_270deg_at_bottom_center,_var(--tw-gradient-stops))] from-transparent via-blue-500/50 to-transparent animate-spin-slow-reverse"
-            style={{ y: useTransform(scrollYProgress, [0, 1], ["100%", "0%"]) }}
-          />
+    <section id="services" style={{ position: "relative", padding: "clamp(4rem,9vw,7rem) 0", overflow: "hidden", background: "var(--c-bg)" }}>
+
+      {/* BG */}
+      <div style={{ position:"absolute", inset:0, zIndex:0, pointerEvents:"none", opacity:0.02, backgroundImage:"radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px)", backgroundSize:"40px 40px" }} />
+      <div style={{ position:"absolute", top:"10%", right:"-15%", width:"50vw", height:"50vw", maxWidth:600, background:"radial-gradient(circle, rgba(124,58,237,0.06) 0%, transparent 70%)", borderRadius:"50%", filter:"blur(70px)", pointerEvents:"none", zIndex:0 }} />
+      <div style={{ position:"absolute", bottom:"5%", left:"-12%", width:"40vw", height:"40vw", maxWidth:500, background:"radial-gradient(circle, rgba(0,255,178,0.05) 0%, transparent 70%)", borderRadius:"50%", filter:"blur(70px)", pointerEvents:"none", zIndex:0 }} />
+
+      <div style={{ position:"relative", zIndex:10, maxWidth:1280, margin:"0 auto", padding:"0 clamp(1.5rem,5vw,3rem)" }}>
+
+        {/* Header */}
+        <motion.div initial={{ opacity:0, y:22 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ duration:0.65 }} style={{ marginBottom:"3.5rem" }}>
+          <div style={{ display:"inline-flex", alignItems:"center", gap:8, marginBottom:"0.75rem" }}>
+            <div style={{ width:22,height:1,background:"var(--c-primary)" }} />
+            <span style={{ fontFamily:"var(--f-mono)",fontSize:11,letterSpacing:"0.12em",textTransform:"uppercase",color:"var(--c-primary)" }}>What I Do</span>
+            <div style={{ width:6,height:1,background:"var(--c-primary)",opacity:0.4 }} />
+          </div>
+          <h2 style={{ fontFamily:"var(--f-display)", fontSize:"clamp(1.9rem,4.5vw,3rem)", fontWeight:800, lineHeight:1.1, color:"var(--c-text)", maxWidth:580, marginBottom:"0.85rem" }}>
+            Services &amp; <span className="gradient-text">Expertise</span>
+          </h2>
+          <p style={{ color:"var(--c-text-2)", fontSize:"clamp(0.9rem,1.6vw,1rem)", maxWidth:500, lineHeight:1.7 }}>
+            End-to-end digital solutions tailored to bring your vision to life.
+          </p>
+        </motion.div>
+
+        {/* Grid */}
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(min(100%,300px),1fr))", gap:"1.25rem" }}>
+          {services.map((s, i) => <ServiceCard key={i} service={s} index={i} />)}
         </div>
-      </motion.div>
 
-      <div className="relative z-10 max-w-7xl mx-auto">
-        <motion.h2
-          initial={{ opacity: 0, x: -50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          className="text-pink-500 text-lg font-semibold uppercase tracking-widest mb-2"
-        >
-          My Expertise
-        </motion.h2>
-
-        <motion.h1
-          initial={{ opacity: 0, y: -50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          viewport={{ once: true }}
-          className="text-4xl md:text-6xl font-extrabold mb-12 relative inline-block text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500"
-        >
-          Digital Alchemy
-          <span className="block absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-pink-500 via-purple-500 to-yellow-400 scale-x-0 origin-left transition-transform duration-500 group-hover:scale-x-100" />
-        </motion.h1>
-
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16"
-        >
-          {services.map((service, index) => (
-            <Tilt
-              key={index}
-              options={{ max: 10, scale: 1.05, speed: 1000, glare: true, 'max-glare': 0.4 }}
-              className="interactive"
-            >
-              <ServiceCard service={service} />
-            </Tilt>
-          ))}
+        {/* CTA */}
+        <motion.div initial={{ opacity:0, y:28 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.4 }} style={{ textAlign:"center", marginTop:"3.5rem" }}>
+          <p style={{ color:"var(--c-text-2)", fontSize:14, marginBottom:"1.2rem" }}>Have a project in mind? Let's make it happen.</p>
+          <motion.a
+            href="#contact"
+            onClick={e => { e.preventDefault(); document.getElementById("contact")?.scrollIntoView({ behavior:"smooth" }); }}
+            whileHover={{ y:-2, boxShadow:"0 14px 36px rgba(0,255,178,0.28)" }}
+            whileTap={{ scale:0.97 }}
+            style={{ display:"inline-flex", alignItems:"center", gap:8, padding:"13px 28px", background:"var(--c-primary)", color:"var(--c-bg)", fontFamily:"var(--f-body)", fontWeight:700, fontSize:14, borderRadius:12, textDecoration:"none", boxShadow:"0 4px 20px rgba(0,255,178,0.2)" }}
+          >
+            <FaRocket size={13} /> Start a Project
+          </motion.a>
         </motion.div>
       </div>
 
+      {/* Scroll to top */}
       <AnimatePresence>
-        {showButton && (
+        {showTop && (
           <motion.button
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.5 }}
-            className="fixed bottom-6 right-6 bg-pink-600 hover:bg-pink-700 text-white p-4 rounded-full shadow-xl z-50 focus:outline-none focus:ring-4 focus:ring-pink-400 transition-all duration-300 animate-bounce interactive"
-            aria-label="Scroll to top"
+            onClick={() => window.scrollTo({ top:0, behavior:"smooth" })}
+            initial={{ opacity:0, scale:0.8 }} animate={{ opacity:1, scale:1 }} exit={{ opacity:0, scale:0.8 }}
+            whileHover={{ scale:1.1 }}
+            style={{ position:"fixed", bottom:24, right:24, width:40, height:40, borderRadius:"50%", background:"linear-gradient(135deg, var(--c-primary), #00D4FF)", display:"flex", alignItems:"center", justifyContent:"center", color:"var(--c-bg)", border:"none", cursor:"pointer", boxShadow:"0 8px 24px rgba(0,255,178,0.3)", zIndex:50 }}
           >
-            <FaArrowUp size={18} />
+            <FaArrowUp size={14} />
           </motion.button>
         )}
       </AnimatePresence>

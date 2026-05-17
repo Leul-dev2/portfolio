@@ -1,307 +1,382 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import Tilt from "react-parallax-tilt";
-import { FaGithub, FaExternalLinkAlt, FaTools, FaCodeBranch, FaMobileAlt, FaUtensils, FaPlus, FaMinus, FaLaptopCode, FaChartLine, FaPaintBrush } from "react-icons/fa";
-import Particles from "react-tsparticles";
-import { loadFull } from "tsparticles";
-import { useCallback, useState } from "react";
+import { FaGithub, FaExternalLinkAlt, FaChevronRight } from "react-icons/fa";
+import { useState, useRef } from "react";
+import { Link } from "react-router-dom";
+import { projects as projectList } from "../../data/content";
 
-// The number of projects to show initially
-const INITIAL_PROJECTS_COUNT = 3;
+const categories = ["All", "MERN", "Flutter", "Full-Stack", "UI/UX"];
 
-// Updated project data with more projects for the "show more" feature
-export const projects = [
-  {
-    title: "MERN-Stack Social Media",
-    description: "A full-stack social media platform with user authentication, post creation, and real-time notifications. Built for scalability.",
-    tech: ["React", "Node.js", "Express", "MongoDB", "Redux"],
-    github: "https://github.com/leul-dev2/",
-    demo: "https://github.com/leul-dev2",
-    image: "/hom.png",
-    icon: <FaCodeBranch className="text-pink-500" />,
-  },
-  {
-    title: "Flutter E-commerce App",
-    description: "A cross-platform e-commerce app with a clean UI, state management, and Stripe payment integration. One codebase, all platforms.",
-    tech: ["Flutter", "Dart", "Firebase", "Stripe"],
-    github: "https://github.com/leul-dev2/",
-    demo: "https://github.com/leul-dev2",
-    image: "/ecomm.jpg",
-    icon: <FaMobileAlt className="text-cyan-400" />,
-  },
-  {
-    title: "Food Delivery App",
-    description: "A full-stack food delivery platform with real-time order tracking, user authentication, and an integrated payment system, built using the MERN stack and Flutter.",
-    tech: ["React", "Node.js", "Express", "MongoDB"],
-    github: "https://github.com/leul-dev2/",
-    demo: "https://github.com/leul-dev2",
-    image: "/recipes.png",
-    icon: <FaUtensils className="text-yellow-400" />,
-  },
-  // Additional projects for the "show more" feature
-  {
-    title: "AI-Powered Dashboard",
-    description: "A data-rich dashboard with dynamic charts and an AI component for predictive analysis, built with MERN stack.",
-    tech: ["React", "D3.js", "Python", "TensorFlow"],
-    github: "https://github.com/leul-dev2/",
-    demo: "https://yourdomain.com/",
-    image: "/images/ai-dashboard-preview.jpg",
-    icon: <FaChartLine className="text-teal-400" />,
-  },
-  {
-    title: "Portfolio Website",
-    description: "This very website! A personal portfolio showcasing projects and skills, designed with modern animations and responsive design.",
-    tech: ["React", "Next.js", "Tailwind CSS", "Framer Motion"],
-    github: "https://github.com/leul-dev2/",
-    demo: "https://yourdomain.com",
-    image: "/images/portfolio-preview.jpg",
-    icon: <FaLaptopCode className="text-indigo-400" />,
-  },
-  {
-    title: "Digital Art Gallery",
-    description: "An interactive gallery for digital artists to display their work, featuring a simple content management system and user profiles.",
-    tech: ["HTML", "CSS", "JavaScript", "Firebase"],
-    github: "https://github.com/leul-dev2/",
-    demo: null,
-    image: "/images/art-gallery-preview.jpg",
-    icon: <FaPaintBrush className="text-rose-400" />,
-  },
-];
-
-// Animation variants for the container
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.2,
-    },
-  },
+/* ── category accent colors ── */
+const catColor = {
+  MERN:        "#00FFB2",
+  Flutter:     "#60A5FA",
+  "Full-Stack": "#A78BFA",
+  "UI/UX":     "#FF4D6D",
 };
 
-// Animation variants for individual project cards
-const item = {
-  hidden: { opacity: 0, y: 30, scale: 0.9 },
-  show: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      type: "spring",
-      stiffness: 80,
-      damping: 10,
-    },
-  },
-};
+/* ── Project Card ── */
+function ProjectCard({ project, index }) {
+  const [hovered, setHovered] = useState(false);
+  const accent = catColor[project.category] || "var(--c-primary)";
 
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 28, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0,  scale: 1 }}
+      exit={{ opacity: 0, scale: 0.94 }}
+      transition={{ duration: 0.4, delay: index * 0.06, ease: [0.23, 1, 0.32, 1] }}
+      style={{ height: "100%" }}
+    >
+      <Link to={`/project/${project.slug}`} style={{ display: "block", height: "100%", textDecoration: "none" }}>
+        <Tilt
+          glareEnable glareMaxOpacity={0.08} glareColor="#ffffff"
+          scale={1.025} transitionSpeed={2200}
+          style={{ height: "100%" }}
+        >
+          <div
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            style={{
+              position: "relative", height: "100%",
+              borderRadius: 20, overflow: "hidden",
+              background: "var(--c-surface)",
+              border: `1px solid ${hovered ? accent + "30" : "var(--c-border-muted)"}`,
+              backdropFilter: "blur(16px)",
+              display: "flex", flexDirection: "column",
+              transition: "border-color .4s ease, box-shadow .4s ease",
+              boxShadow: hovered ? `0 24px 56px ${accent}12` : "none",
+            }}
+          >
+            {/* ── Image ── */}
+            <div style={{ position: "relative", height: 188, overflow: "hidden", flexShrink: 0 }}>
+              <img
+                src={project.image} alt={project.title}
+                style={{
+                  width: "100%", height: "100%", objectFit: "cover", display: "block",
+                  transform: hovered ? "scale(1.08)" : "scale(1)",
+                  transition: "transform .65s cubic-bezier(.23,1,.32,1)",
+                }}
+              />
+              {/* gradient overlay */}
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 30%, rgba(5,10,15,0.85) 100%)" }} />
+
+              {/* Featured badge */}
+              {project.featured && (
+                <div style={{
+                  position: "absolute", top: 10, left: 10,
+                  padding: "3px 10px", borderRadius: 6,
+                  background: "linear-gradient(90deg, var(--c-primary), #00D4FF)",
+                  color: "var(--c-bg)", fontFamily: "var(--f-mono)",
+                  fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
+                }}>
+                  ✦ Featured
+                </div>
+              )}
+
+              {/* Category badge */}
+              <div style={{
+                position: "absolute", top: 10, right: 10,
+                padding: "3px 10px", borderRadius: 6,
+                background: "rgba(5,10,15,0.72)", backdropFilter: "blur(10px)",
+                border: `1px solid ${accent}40`,
+                fontFamily: "var(--f-mono)", fontSize: 10, color: accent,
+              }}>
+                {project.category}
+              </div>
+
+              {/* Hover CTA strip */}
+              <motion.div
+                animate={{ opacity: hovered ? 1 : 0, y: hovered ? 0 : 8 }}
+                transition={{ duration: 0.25 }}
+                style={{
+                  position: "absolute", bottom: 0, left: 0, right: 0,
+                  padding: "10px 14px",
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                }}
+              >
+                <span style={{ fontFamily: "var(--f-mono)", fontSize: 11, color: "var(--c-text-2)" }}>
+                  View Details
+                </span>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {project.github && (
+                    <a href={project.github} target="_blank" rel="noopener"
+                      onClick={e => e.stopPropagation()}
+                      style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(5,10,15,0.75)", border: "1px solid var(--c-border-muted)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--c-text-2)", textDecoration: "none", transition: "color .2s" }}
+                      onMouseEnter={e => e.currentTarget.style.color = "var(--c-primary)"}
+                      onMouseLeave={e => e.currentTarget.style.color = "var(--c-text-2)"}>
+                      <FaGithub size={12} />
+                    </a>
+                  )}
+                  {project.demo && (
+                    <a href={project.demo} target="_blank" rel="noopener"
+                      onClick={e => e.stopPropagation()}
+                      style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(5,10,15,0.75)", border: "1px solid var(--c-border-muted)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--c-text-2)", textDecoration: "none", transition: "color .2s" }}
+                      onMouseEnter={e => e.currentTarget.style.color = accent}
+                      onMouseLeave={e => e.currentTarget.style.color = "var(--c-text-2)"}>
+                      <FaExternalLinkAlt size={10} />
+                    </a>
+                  )}
+                </div>
+              </motion.div>
+            </div>
+
+            {/* ── Body ── */}
+            <div style={{ padding: "clamp(1rem,2.5vw,1.3rem)", display: "flex", flexDirection: "column", gap: "0.65rem", flex: 1 }}>
+              <h3 style={{
+                fontFamily: "var(--f-display)", fontSize: "clamp(0.95rem,1.8vw,1.05rem)",
+                fontWeight: 700, color: hovered ? accent : "var(--c-text)",
+                display: "flex", alignItems: "center", gap: 6,
+                transition: "color .3s ease", lineHeight: 1.3,
+              }}>
+                {project.title}
+                <motion.span
+                  animate={{ opacity: hovered ? 1 : 0, x: hovered ? 0 : -6 }}
+                  transition={{ duration: 0.22 }}
+                  style={{ marginLeft: "auto", flexShrink: 0 }}
+                >
+                  <FaChevronRight size={10} />
+                </motion.span>
+              </h3>
+
+              <p style={{
+                fontSize: 13, color: "var(--c-text-2)", lineHeight: 1.65,
+                display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
+                flex: 1,
+              }}>
+                {project.description}
+              </p>
+
+              {/* Tech stack tags */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: "auto" }}>
+                {project.tech.slice(0, 3).map((t) => (
+                  <span key={t} style={{
+                    fontSize: 10.5, padding: "3px 9px", borderRadius: 6,
+                    background: hovered ? `${accent}12` : "var(--c-surface-2)",
+                    border: `1px solid ${hovered ? accent + "25" : "var(--c-border-muted)"}`,
+                    color: hovered ? accent : "var(--c-text-2)",
+                    fontFamily: "var(--f-mono)",
+                    transition: "all .3s ease",
+                  }}>
+                    {t}
+                  </span>
+                ))}
+                {project.tech.length > 3 && (
+                  <span style={{
+                    fontSize: 10.5, padding: "3px 9px", borderRadius: 6,
+                    background: "var(--c-surface-2)", border: "1px solid var(--c-border-muted)",
+                    color: "var(--c-muted)", fontFamily: "var(--f-mono)",
+                  }}>
+                    +{project.tech.length - 3}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Accent glow on hover */}
+            <motion.div
+              animate={{ opacity: hovered ? 1 : 0 }}
+              transition={{ duration: 0.4 }}
+              style={{
+                position: "absolute", inset: 0, pointerEvents: "none",
+                background: `radial-gradient(ellipse 70% 40% at 50% 100%, ${accent}10, transparent)`,
+              }}
+            />
+          </div>
+        </Tilt>
+      </Link>
+    </motion.div>
+  );
+}
+
+/* ── Featured highlight row ── */
+function FeaturedCard({ project }) {
+  const [hovered, setHovered] = useState(false);
+  const accent = catColor[project.category] || "var(--c-primary)";
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }} transition={{ duration: 0.7 }}
+      style={{ gridColumn: "1 / -1", marginBottom: "0.5rem" }}
+    >
+      <Link to={`/project/${project.slug}`} style={{ display: "block", textDecoration: "none" }}>
+        <div
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%,320px),1fr))",
+            gap: 0,
+            borderRadius: 22,
+            overflow: "hidden",
+            border: `1px solid ${hovered ? accent + "35" : "var(--c-border-muted)"}`,
+            background: "var(--c-surface)",
+            backdropFilter: "blur(16px)",
+            transition: "border-color .4s, box-shadow .4s",
+            boxShadow: hovered ? `0 28px 60px ${accent}14` : "none",
+          }}
+        >
+          {/* Image */}
+          <div style={{ position: "relative", minHeight: 240, overflow: "hidden" }}>
+            <img src={project.image} alt={project.title}
+              style={{ width:"100%", height:"100%", objectFit:"cover", display:"block",
+                transform: hovered ? "scale(1.06)" : "scale(1)",
+                transition: "transform .65s cubic-bezier(.23,1,.32,1)" }} />
+            <div style={{ position:"absolute", inset:0, background:"linear-gradient(90deg, transparent 60%, rgba(5,10,15,0.9) 100%)" }} />
+            <div style={{ position:"absolute", top:14, left:14, padding:"4px 12px", borderRadius:8, background:`linear-gradient(90deg, ${accent}, #00D4FF)`, color:"var(--c-bg)", fontFamily:"var(--f-mono)", fontSize:10.5, fontWeight:700, letterSpacing:"0.08em", textTransform:"uppercase" }}>
+              ✦ Featured Project
+            </div>
+          </div>
+
+          {/* Content */}
+          <div style={{ padding: "clamp(1.5rem,4vw,2.5rem)", display:"flex", flexDirection:"column", gap:"1rem" }}>
+            <div style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"4px 12px", borderRadius:100, background:`${accent}14`, border:`1px solid ${accent}28`, fontFamily:"var(--f-mono)", fontSize:10.5, color:accent, width:"fit-content" }}>
+              {project.category}
+            </div>
+            <h3 style={{ fontFamily:"var(--f-display)", fontSize:"clamp(1.3rem,3vw,1.8rem)", fontWeight:800, color:"var(--c-text)", lineHeight:1.15 }}>
+              {project.title}
+            </h3>
+            <p style={{ fontSize:14, color:"var(--c-text-2)", lineHeight:1.7, maxWidth:420 }}>
+              {project.description}
+            </p>
+            <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
+              {project.tech.map(t => (
+                <span key={t} style={{ fontSize:11.5, padding:"4px 11px", borderRadius:7, background:`${accent}12`, border:`1px solid ${accent}25`, color:accent, fontFamily:"var(--f-mono)" }}>
+                  {t}
+                </span>
+              ))}
+            </div>
+            <div style={{ display:"flex", gap:10, marginTop:4 }}>
+              {project.github && (
+                <a href={project.github} target="_blank" rel="noopener"
+                  onClick={e => e.stopPropagation()}
+                  style={{ display:"inline-flex", alignItems:"center", gap:7, padding:"9px 18px", background:"var(--c-surface-2)", border:"1px solid var(--c-border-muted)", borderRadius:10, color:"var(--c-text)", fontFamily:"var(--f-body)", fontWeight:600, fontSize:13, textDecoration:"none", transition:"all .25s" }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor="var(--c-border)"; e.currentTarget.style.color=accent; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor="var(--c-border-muted)"; e.currentTarget.style.color="var(--c-text)"; }}>
+                  <FaGithub size={13}/> GitHub
+                </a>
+              )}
+              {project.demo && (
+                <a href={project.demo} target="_blank" rel="noopener"
+                  onClick={e => e.stopPropagation()}
+                  style={{ display:"inline-flex", alignItems:"center", gap:7, padding:"9px 18px", background:accent, color:"var(--c-bg)", borderRadius:10, fontFamily:"var(--f-body)", fontWeight:700, fontSize:13, textDecoration:"none", transition:"transform .2s, box-shadow .2s" }}
+                  onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow=`0 10px 28px ${accent}40`; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform=""; e.currentTarget.style.boxShadow=""; }}>
+                  <FaExternalLinkAlt size={11}/> Live Demo
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
+
+/* ── Main ── */
 export default function Projects() {
-  const [visibleProjects, setVisibleProjects] = useState(INITIAL_PROJECTS_COUNT);
-  const projectsToShow = projects.slice(0, visibleProjects);
+  const [active, setActive] = useState("All");
 
-  const particlesInit = useCallback(async (engine) => {
-    await loadFull(engine);
-  }, []);
+  const filtered = active === "All"
+    ? projectList
+    : projectList.filter(p => p.category === active);
 
-  const particlesOptions = {
-    fullScreen: { enable: false },
-    background: { color: { value: "transparent" } },
-    particles: {
-      number: { value: 50, density: { enable: true, value_area: 800 } },
-      color: { value: ["#ec4899", "#8b5cf6", "#38bdf8"] },
-      shape: { type: "circle" },
-      opacity: { value: 0.3 },
-      size: { value: 3, random: true },
-      links: { enable: true, distance: 150, color: "#ffffff", opacity: 0.4, width: 1 },
-      move: { enable: true, speed: 0.5, direction: "none", random: true, straight: false, out_mode: "out" },
-    },
-    interactivity: {
-      detectsOn: "canvas",
-      events: {
-        onHover: { enable: true, mode: "repulse" },
-        onClick: { enable: true, mode: "push" },
-      },
-      modes: {
-        repulse: { distance: 100, duration: 0.4 },
-        push: { quantity: 4 },
-      },
-    },
-  };
+  const featuredProject = projectList.find(p => p.featured);
+  const gridProjects    = active === "All"
+    ? projectList.filter(p => !p.featured)
+    : filtered;
+  const showFeatured    = active === "All" && featuredProject;
 
-  const handleShowMore = () => {
-    setVisibleProjects(prev => prev + 3);
-  };
+  return (
+    <section id="projects" style={{ position:"relative", padding:"clamp(4rem,9vw,7rem) 0", overflow:"hidden", background:"var(--c-bg)" }}>
 
-  const handleShowLess = () => {
-    setVisibleProjects(INITIAL_PROJECTS_COUNT);
-  };
+      {/* BG */}
+      <div style={{ position:"absolute", top:"5%", right:"-18%", width:"55vw", height:"55vw", maxWidth:680, background:"radial-gradient(circle, rgba(124,58,237,0.07) 0%, transparent 70%)", borderRadius:"50%", filter:"blur(80px)", pointerEvents:"none", zIndex:0 }} />
+      <div style={{ position:"absolute", bottom:"0%", left:"-14%", width:"45vw", height:"45vw", maxWidth:550, background:"radial-gradient(circle, rgba(0,255,178,0.05) 0%, transparent 70%)", borderRadius:"50%", filter:"blur(80px)", pointerEvents:"none", zIndex:0 }} />
 
-  return (
-    <section
-      id="projects"
-      className="relative min-h-screen bg-[#0c1221] text-white px-6 py-24 overflow-hidden"
-    >
-      <Particles
-        id="tsparticles-projects"
-        init={particlesInit}
-        options={particlesOptions}
-        className="absolute inset-0 z-0"
-      />
+      <div style={{ position:"relative", zIndex:10, maxWidth:1280, margin:"0 auto", padding:"0 clamp(1.5rem,5vw,3rem)" }}>
 
-      <div className="relative z-10 max-w-7xl mx-auto">
-        <motion.h2
-          initial={{ opacity: 0, x: -50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          className="text-pink-500 text-lg font-semibold mb-2 uppercase tracking-widest"
-        >
-          My Work
-        </motion.h2>
+        {/* Header */}
+        <motion.div initial={{ opacity:0, y:22 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ duration:0.65 }} style={{ marginBottom:"3rem" }}>
+          <div style={{ display:"inline-flex", alignItems:"center", gap:8, marginBottom:"0.75rem" }}>
+            <div style={{ width:22,height:1,background:"var(--c-primary)" }} />
+            <span style={{ fontFamily:"var(--f-mono)",fontSize:11,letterSpacing:"0.12em",textTransform:"uppercase",color:"var(--c-primary)" }}>My Work</span>
+            <div style={{ width:6,height:1,background:"var(--c-primary)",opacity:0.4 }} />
+          </div>
+          <h2 style={{ fontFamily:"var(--f-display)", fontSize:"clamp(1.9rem,4.5vw,3rem)", fontWeight:800, lineHeight:1.1, color:"var(--c-text)", maxWidth:580, marginBottom:"0.85rem" }}>
+            Featured <span className="gradient-text">Projects</span>
+          </h2>
+          <p style={{ color:"var(--c-text-2)", fontSize:"clamp(0.9rem,1.6vw,1rem)", maxWidth:520, lineHeight:1.7 }}>
+            A selection of projects that showcase my skills and passion for building great software.
+          </p>
+        </motion.div>
 
-        <motion.h1
-          initial={{ opacity: 0, y: -50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          viewport={{ once: true }}
-          className="text-4xl md:text-6xl font-bold mb-12 relative inline-block text-white group"
-        >
-          Featured Projects
-          <span className="block absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-400 scale-x-0 origin-left transition-transform duration-500 group-hover:scale-x-100" />
-        </motion.h1>
+        {/* Filter pills */}
+        <motion.div
+          initial={{ opacity:0, y:16 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.1 }}
+          style={{ display:"flex", flexWrap:"wrap", justifyContent:"center", gap:8, marginBottom:"3rem" }}
+        >
+          {categories.map(cat => {
+            const isActive = active === cat;
+            const color = catColor[cat] || "var(--c-primary)";
+            return (
+              <motion.button
+                key={cat}
+                onClick={() => setActive(cat)}
+                whileHover={{ y:-2 }}
+                whileTap={{ scale:0.96 }}
+                style={{
+                  padding:"8px 18px", borderRadius:10, fontSize:13, fontWeight:600,
+                  fontFamily:"var(--f-body)", cursor:"pointer", border:"1px solid",
+                  transition:"all .25s ease",
+                  background:   isActive ? color : "var(--c-surface)",
+                  borderColor:  isActive ? color  : "var(--c-border-muted)",
+                  color:        isActive ? "var(--c-bg)" : "var(--c-text-2)",
+                  boxShadow:    isActive ? `0 6px 20px ${color}35` : "none",
+                }}
+              >
+                {cat}
+              </motion.button>
+            );
+          })}
+        </motion.div>
 
-        <motion.div
-          variants={container}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"
-        >
-          {projectsToShow.map((project, i) => (
-            <motion.div key={i} variants={item}>
-              <Tilt
-                glareEnable={true}
-                glareMaxOpacity={0.4}
-                glareColor="#ffffff"
-                glarePosition="all"
-                scale={1.05}
-                transitionSpeed={2000}
-                className="group relative overflow-hidden bg-[#001a4d]/40 backdrop-blur-xl p-6 rounded-3xl border border-pink-500/30 transition-all duration-500 shadow-xl hover:shadow-pink-500/50 cursor-pointer"
-                aria-labelledby={`project-${i}-title`}
-              >
-                {/* Background Glitch/Shimmer Effect */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-10 bg-gradient-to-br from-pink-500 via-purple-600 to-blue-500 animate-shimmer transition-all duration-700 rounded-3xl"></div>
+        {/* Featured full-width card */}
+        {showFeatured && <FeaturedCard project={featuredProject} />}
 
-                <div className="relative z-10">
-                  <a
-                    href={project.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`View ${project.title} on GitHub`}
-                    className="block w-full h-40 mb-4 rounded-xl overflow-hidden border border-white/10 group-hover:border-pink-500 transition-colors duration-300"
-                  >
-                    <img
-                      src={project.image}
-                      alt={`Preview of ${project.title}`}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                  </a>
-                  
-                  <div className="flex items-center space-x-2 mb-2">
-                    <div className="text-xl">{project.icon}</div>
-                    <h3
-                      id={`project-${i}-title`}
-                      className="text-2xl font-bold relative pb-1 after:block after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-12 after:bg-gradient-to-r after:from-pink-500 after:to-purple-500 after:origin-left after:scale-x-0 group-hover:after:scale-x-100 after:transition-transform after:duration-500"
-                    >
-                      {project.title}
-                    </h3>
-                  </div>
+        {/* Grid */}
+        <LayoutGroup>
+          <motion.div layout style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(min(100%,300px),1fr))", gap:"clamp(1rem,2.5vw,1.4rem)" }}>
+            <AnimatePresence mode="popLayout">
+              {gridProjects.map((project, i) => (
+                <ProjectCard key={project.slug} project={project} index={i} />
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        </LayoutGroup>
 
-                  <p className="text-gray-300 mb-4 leading-relaxed">
-                    {project.description}
-                  </p>
-
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    {project.tech.map((tech, idx) => (
-                      <span
-                        key={idx}
-                        className="bg-pink-600/30 text-pink-200 text-xs font-semibold px-3 py-1 rounded-full select-none backdrop-blur-sm transition-all duration-300 group-hover:scale-105 group-hover:bg-pink-500/50"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="flex space-x-5 items-center mt-6">
-                    {project.github && (
-                      <a
-                        href={project.github}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={`${project.title} GitHub Repo`}
-                        className="text-pink-400 hover:text-pink-600 transition duration-300 transform hover:scale-125"
-                      >
-                        <FaGithub size={22} />
-                      </a>
-                    )}
-                    {project.demo && (
-                      <a
-                        href={project.demo}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={`${project.title} Live Demo`}
-                        className="text-pink-400 hover:text-pink-600 transition duration-300 transform hover:scale-125"
-                      >
-                        <FaExternalLinkAlt size={20} />
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </Tilt>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-          className="flex justify-center space-x-4 mt-12"
-        >
-          {/* "Show More" Button */}
-          {visibleProjects < projects.length && (
-            <button
-              onClick={handleShowMore}
-              className="inline-flex items-center space-x-2 px-6 py-3 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold text-lg shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
-            >
-              <span>Show More</span>
-              <FaPlus size={18} />
-            </button>
-          )}
-
-          {/* "Show Less" Button */}
-          {visibleProjects > INITIAL_PROJECTS_COUNT && (
-            <button
-              onClick={handleShowLess}
-              className="inline-flex items-center space-x-2 px-6 py-3 rounded-full border border-purple-500 text-purple-400 font-bold text-lg transform transition-all duration-300 hover:scale-105 hover:bg-purple-900/20 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
-            >
-              <span>Show Less</span>
-              <FaMinus size={18} />
-            </button>
-          )}
-        </motion.div>
-      </div>
-
-      <style jsx>{`
-        .animate-shimmer {
-          background-size: 200% 200%;
-          animation: shimmer 5s infinite linear;
-        }
-        @keyframes shimmer {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-      `}</style>
-    </section>
-  );
+        {/* GitHub CTA */}
+        <motion.div initial={{ opacity:0 }} whileInView={{ opacity:1 }} viewport={{ once:true }} transition={{ delay:0.3 }}
+          style={{ textAlign:"center", marginTop:"3rem" }}>
+          <motion.a
+            href="https://github.com/leul-dev2"
+            target="_blank" rel="noopener noreferrer"
+            whileHover={{ y:-2, borderColor:"var(--c-border)", color:"var(--c-primary)" }}
+            style={{
+              display:"inline-flex", alignItems:"center", gap:8,
+              padding:"11px 22px", borderRadius:12,
+              background:"var(--c-surface)", border:"1px solid var(--c-border-muted)",
+              color:"var(--c-text-2)", fontSize:13.5, fontWeight:600,
+              textDecoration:"none", backdropFilter:"blur(12px)",
+              transition:"all .25s",
+            }}
+          >
+            <FaGithub size={15} /> View More on GitHub
+          </motion.a>
+        </motion.div>
+      </div>
+    </section>
+  );
 }
