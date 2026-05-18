@@ -4,7 +4,7 @@ import { FaGithub, FaLinkedin, FaFacebook, FaStackOverflow, FaPaperPlane, FaChec
 import { MdEmail, MdLocationOn, MdPhone } from "react-icons/md";
 
 const contactInfo = [
-  { icon:<MdEmail size={20}/>,      label:"Email",    value:"leulsegedseyoum@gmail.com", href:"mailto:leulsegedseyoum@gmail.com", color:"var(--c-primary)" },
+  { icon:<MdEmail size={20}/>,      label:"Email",    value:"leulseyoum103@gmail.com", href:"mailto:leulsegedseyoum@gmail.com", color:"var(--c-primary)" },
   { icon:<MdPhone size={20}/>,      label:"Phone",    value:"+251 989 905 112",           href:"tel:+251989905112",                color:"var(--c-accent)"  },
   { icon:<MdLocationOn size={20}/>, label:"Location", value:"Addis Ababa, Ethiopia",      href:null,                               color:"#60A5FA"           },
 ];
