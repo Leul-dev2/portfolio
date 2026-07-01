@@ -1115,3 +1115,5 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Keep existing glass, gradient-text, font-mono from old code working */
 .font-mono { font-family: var(--f-mono) !important; }
+
+<!-- Structural system point: 2026-07-01 23:40:29 -->
